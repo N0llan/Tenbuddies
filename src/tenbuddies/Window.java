@@ -1,3 +1,13 @@
+/**
+ * @author Nollan
+ * Date: 2016-09-14
+ * Description:
+ * 		This class handles all logic and GUI functionality. With this program you can practice your mathskills
+ * 		and become better at calculating in your head. 
+ * 		The program was made to practice my skills in programming and the idea of the program in from my sister who
+ * 		is a teacher. 
+ */
+
 package tenbuddies;
 
 import java.awt.Color;
@@ -19,7 +29,6 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,8 +46,9 @@ import com.sun.glass.events.KeyEvent;
 
 import java.util.Collections;
 
+@SuppressWarnings("serial")
 public class Window extends JFrame {
-	
+
 	private JLabel[] buttons = new JLabel[11];
 	private JLabel btnZero,btnOne, btnTwo, btnThree, btnFour, btnFive, btnSix, btnSeven, btnEight, btnNine, btnTen, correctImg, incorrectImg;
 	private JMenuBar menuBar;
@@ -51,11 +61,11 @@ public class Window extends JFrame {
 						radioButtonMinNum40MaxNumber50,
 						radioButtonAddition, radioButtonSubtraction, radioButtonDivision, radioButtonMultiplication;
 	private ButtonGroup numberGroup, arithmeticChoiseGroup;
-	private int correctAnswer;
 	private JTextField textFieldExpression;
 	private ArrayList<Integer> listButtonOrder;
 	private JPanel row0, row1, row2, row3, row4;
 	private JMenuItem newExpression;
+	private int correctAnswer;
 	
 	
 	/**
@@ -215,7 +225,7 @@ public class Window extends JFrame {
 	 * Function will check if clicked value is the correct answer
 	 */
 	public void gradingChoise(String clickValue){
-		if (clickValue == buttons[listButtonOrder.get(1)].getName()){
+		if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
 			correctChoiseBox();
 			createExpression();
 		} else {
@@ -323,7 +333,7 @@ public class Window extends JFrame {
 		radioButtonSubtraction = new JRadioButton("Subtraktion");
 		subMenuArithmeticChoise.add(radioButtonSubtraction);
 		radioButtonDivision = new JRadioButton("Division");
-		subMenuArithmeticChoise.add(radioButtonDivision);
+		//subMenuArithmeticChoise.add(radioButtonDivision);
 		radioButtonMultiplication = new JRadioButton("Multiplikation");
 		subMenuArithmeticChoise.add(radioButtonMultiplication);
 		
@@ -378,11 +388,11 @@ public class Window extends JFrame {
 	 * After this function all button should have a image corresponding to their value
 	 */
 	public void setButtonImages(){
-		for (JLabel jLabel : buttons) {
-			try {
+		for (JLabel jLabel : buttons) {		//Loops all buttons (numbers)
+			try {							//Creates a img from imputstream and scales it to be 100x100
 				InputStream inputStream = ClassLoader.getSystemResourceAsStream(jLabel.getName()+".png");
 				Image buttonicon = ImageIO.read(inputStream).getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-				jLabel.setIcon(new ImageIcon(buttonicon));
+				jLabel.setIcon(new ImageIcon(buttonicon));	//Sets the jLabel (buttons) image
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -413,6 +423,9 @@ public class Window extends JFrame {
 			list.add(count);								//Adds the number to the list
 		}
 		if (boxItemAllowNegativeNumbers.isSelected()){		
+			if (negMax == 0){
+				negMax--;
+			}
 			for (int count = negMin; count<= negMax; count++){	//Loops the negativenumbers we want
 				list.add(count);							//Adds these to the list
 			}
@@ -432,16 +445,34 @@ public class Window extends JFrame {
 	public void createExpression(){
 		randomizeButtonValues();
 		setButtonImages();
+		int answer = 0;
 		listButtonOrder = new ArrayList<Integer>();	//List with int
 		for (int count = 0; count< buttons.length; count++){			//Loops the number of numbers we want
 			listButtonOrder.add(count);								//Adds the number to the list
 		}
 		Collections.shuffle(listButtonOrder);							//Shuffles the list
-		correctAnswer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) + Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+		
+		String arithmetic = "";
+		if(radioButtonAddition.isSelected()){						//Checks if we are dealing with addition
+			arithmetic = " + ";										//Calculates the answer and stores it in variable
+			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) + Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+		} else if (radioButtonSubtraction.isSelected()) {			//Checks if we are dealing with subtraction
+			arithmetic = " - ";										//Calculates the answer and stores it in variable
+			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+		} else if (radioButtonMultiplication.isSelected()){			//Checks if we are dealing with multiplication
+			arithmetic = " * ";										//Calculates the answer and stores it in variable
+			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) * Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+		} else if (radioButtonDivision.isSelected()){				//Checks if we are dealing with division
+			arithmetic = " / ";										//Calculates the answer and stores it in variable
+			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) / Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+		}
+		
 		if (Integer.parseInt(buttons[0].getName()) > Integer.parseInt(buttons[1].getName())){
-			textFieldExpression.setText(buttons[listButtonOrder.get(0)].getName() + " + ____ = " + String.valueOf(correctAnswer) );
+			textFieldExpression.setText(buttons[listButtonOrder.get(0)].getName() + arithmetic + "____ = " + String.valueOf(answer) );	//Adds expression to textbox
+			correctAnswer = 1;										//Stores the correct index of answer
 		} else {
-			textFieldExpression.setText("____ + " + buttons[listButtonOrder.get(0)].getName() + " = " + String.valueOf(correctAnswer) );
+			textFieldExpression.setText("____" + arithmetic + buttons[listButtonOrder.get(1)].getName() + " = " + String.valueOf(answer) );	//Adds expression to textbox
+			correctAnswer = 0;										//Stores the correct index of answer
 		}
 		setButtonImages();
 		

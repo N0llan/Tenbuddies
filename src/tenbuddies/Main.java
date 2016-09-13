@@ -1,3 +1,8 @@
+/**
+ * @author Nollan
+ * This "class" only handles main function. It creates a new Window.
+ */
+
 package tenbuddies;
 
 public class Main {
