@@ -54,7 +54,7 @@ public class Window extends JFrame {
 	private int correctAnswer;
 	private JTextField textFieldExpression;
 	private ArrayList<Integer> listButtonOrder;
-	private JPanel row0, row1, row2, row3, row4, row5;
+	private JPanel row0, row1, row2, row3, row4;
 	private JMenuItem newExpression;
 	
 	
@@ -252,11 +252,7 @@ public class Window extends JFrame {
 		newExpression = new JMenuItem("Nytt uttryck");
 		newExpression.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, KeyEvent.MODIFIER_NONE));
 		menu.add(newExpression);
-		newExpression.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				createExpression();	
-			}
-		});
+		
 		
 		subMenuSettings = new JMenu("Inställningar");		//Declares a submenu
 		menu.add(subMenuSettings);						//Adds a submenu called settings to rootmenu
@@ -336,14 +332,14 @@ public class Window extends JFrame {
 		arithmeticChoiseGroup.add(radioButtonSubtraction);
 		arithmeticChoiseGroup.add(radioButtonDivision);
 		arithmeticChoiseGroup.add(radioButtonMultiplication);				
-		radioButtonListener();
+		addNewExpressionListener();
 	}
 	
 	/**
 	 * @author Nollan
 	 * Function adds listener to all radiobuttons in numberGroup and arithmeticChoiseGroup
 	 */
-	public void radioButtonListener(){
+	public void addNewExpressionListener(){
 		for  (Enumeration<AbstractButton> buttons = numberGroup.getElements(); buttons.hasMoreElements();){	//Loops all buttons in numberGroup
 			AbstractButton button = buttons.nextElement();
 			button.addActionListener(new ActionListener() {
@@ -361,6 +357,18 @@ public class Window extends JFrame {
 				}
 			});
 		}
+		
+		newExpression.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createExpression();	
+			}
+		});
+		
+		boxItemAllowNegativeNumbers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createExpression();				
+			}
+		});
 		
 	}
 	
@@ -386,12 +394,16 @@ public class Window extends JFrame {
 	 * Function gives every button (JLabel) a value
 	 */
 	public void randomizeButtonValues(){
-		int min = 0, max = 0;		//Declares variables that hold min and max value
+		int min = 0, max = 0, negMin = 0, negMax = 0;		//Declares variables that hold min and max value and negative min max
 		for  (Enumeration<AbstractButton> buttons = numberGroup.getElements(); buttons.hasMoreElements();){	//Loops all buttons in numberGroup
 			AbstractButton button = buttons.nextElement();
 			if (button.isSelected()){			//If the button is selected
 				max = Integer.parseInt(button.getText().substring(button.getText().indexOf("-") +1));	//Set max to the choosen maxvalue
-				min = Integer.parseInt(button.getText().substring(0,button.getText().indexOf("-")));
+				min = Integer.parseInt(button.getText().substring(0,button.getText().indexOf("-")));	//Set min to the choosen minvalue
+				if (boxItemAllowNegativeNumbers.isSelected()){											//If user want to allow negative numbers
+					negMin = Integer.parseInt("-"+String.valueOf(max));									//Invert max and min to negative numbers
+					negMax = Integer.parseInt("-"+String.valueOf(min));									//and save them in variables
+				}
 				break;				//Break the loop
 			}
 		}
@@ -399,6 +411,11 @@ public class Window extends JFrame {
 		ArrayList<Integer> list = new ArrayList<Integer>();	//List with int
 		for (int count = min; count<=max; count++){			//Loops the number of numbers we want
 			list.add(count);								//Adds the number to the list
+		}
+		if (boxItemAllowNegativeNumbers.isSelected()){		
+			for (int count = negMin; count<= negMax; count++){	//Loops the negativenumbers we want
+				list.add(count);							//Adds these to the list
+			}
 		}
 		Collections.shuffle(list);							//Shuffles the list
 		int idx = 0;										//Index counter
