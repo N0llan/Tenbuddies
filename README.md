@@ -7,11 +7,11 @@ This application is made for my sister who maybe will use it in her profession (
 The program is written in JAVA and Swedish. Future english support may happen.
 
 
-How to run "gameoflife"
+How to run Tiokompisar
 ------------------------
 Duobleclick on the .jar file and program will start.
 
-### Menu (Menu)
+### Meny (Menu)
 	Nytt uttryck (New expression) - Regenerates a new expression
 	Inställningar (Settings) - Shows more settings
 	Nummerintervall (Number interval) - Choose what numberinterval the expression is based on
