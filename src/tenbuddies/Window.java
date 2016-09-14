@@ -86,8 +86,8 @@ public class Window extends JFrame {
 		row0.setBackground(Color.CYAN);						//Bakgrundsfärg
 		this.add(row0);
 		textFieldExpression = new JTextField("Expression will be here..");
-		textFieldExpression.setPreferredSize(new Dimension(200,40));
-		textFieldExpression.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+		textFieldExpression.setPreferredSize(new Dimension(300,50));
+		textFieldExpression.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 34));
 		textFieldExpression.setDisabledTextColor(Color.black);
 		textFieldExpression.setHorizontalAlignment(SwingConstants.CENTER);
 		textFieldExpression.setEnabled(false);
