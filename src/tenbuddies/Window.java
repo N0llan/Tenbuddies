@@ -88,6 +88,7 @@ public class Window extends JFrame {
 		textFieldExpression = new JTextField("Expression will be here..");
 		textFieldExpression.setPreferredSize(new Dimension(200,40));
 		textFieldExpression.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+		textFieldExpression.setDisabledTextColor(Color.black);
 		textFieldExpression.setHorizontalAlignment(SwingConstants.CENTER);
 		textFieldExpression.setEnabled(false);
 		textFieldExpression.setBorder(BorderFactory.createCompoundBorder(textFieldExpression.getBorder(),BorderFactory.createEmptyBorder(5,5,5,5)));	
@@ -460,7 +461,7 @@ public class Window extends JFrame {
 			arithmetic = " - ";										//Calculates the answer and stores it in variable
 			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
 		} else if (radioButtonMultiplication.isSelected()){			//Checks if we are dealing with multiplication
-			arithmetic = " * ";										//Calculates the answer and stores it in variable
+			arithmetic = " \u2219 ";								//Calculates the answer and stores it in variable
 			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) * Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
 		} else if (radioButtonDivision.isSelected()){				//Checks if we are dealing with division
 			arithmetic = " / ";										//Calculates the answer and stores it in variable
