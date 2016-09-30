@@ -460,6 +460,11 @@ public class Window extends JFrame {
 		} else if (radioButtonSubtraction.isSelected()) {			//Checks if we are dealing with subtraction
 			arithmetic = " - ";										//Calculates the answer and stores it in variable
 			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+			while (!boxItemAllowNegativeNumbers.isSelected() && answer < 0){
+				randomizeButtonValues();
+				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+			}
+																	
 		} else if (radioButtonMultiplication.isSelected()){			//Checks if we are dealing with multiplication
 			arithmetic = " \u2219 ";								//Calculates the answer and stores it in variable
 			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) * Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
