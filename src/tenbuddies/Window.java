@@ -16,17 +16,23 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Character.Subset;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
+
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -43,7 +49,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import com.sun.glass.events.KeyEvent;
-
 import java.util.Collections;
 
 @SuppressWarnings("serial")
@@ -59,14 +64,15 @@ public class Window extends JFrame {
 						radioButtonMinNum20MaxNumber50, radioButtonMinNum20MaxNumber40, radioButtonMinNum20MaxNumber30, 
 						radioButtonMinNum30MaxNumber50,	radioButtonMinNum30MaxNumber40,
 						radioButtonMinNum40MaxNumber50,
-						radioButtonAddition, radioButtonSubtraction, radioButtonDivision, radioButtonMultiplication;
+						radioButtonAddition, radioButtonSubtraction, radioButtonDivision, radioButtonMultiplication, radioButtonAutoRestart;
 	private ButtonGroup numberGroup, arithmeticChoiseGroup;
-	private JTextField textFieldExpression;
+	private JTextField textFieldExpression, textFieldTime;
 	private ArrayList<Integer> listButtonOrder;
 	private JPanel row0, row1, row2, row3, row4;
 	private JMenuItem newExpression;
 	private int correctAnswer;
-	
+	private long startTime;
+	private boolean timeCountStarted;
 	
 	/**
 	 * @author Nollan
@@ -79,8 +85,7 @@ public class Window extends JFrame {
 		setSize(600,600);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
-		
-		
+				
 		row0 = new JPanel();								//Skapar en rad
 		row0.setLayout(new FlowLayout(FlowLayout.CENTER));	//Layout på raden
 		row0.setBackground(Color.CYAN);						//Bakgrundsfärg
@@ -91,9 +96,20 @@ public class Window extends JFrame {
 		textFieldExpression.setDisabledTextColor(Color.black);
 		textFieldExpression.setHorizontalAlignment(SwingConstants.CENTER);
 		textFieldExpression.setEnabled(false);
-		textFieldExpression.setBorder(BorderFactory.createCompoundBorder(textFieldExpression.getBorder(),BorderFactory.createEmptyBorder(5,5,5,5)));	
-		row0.add(textFieldExpression);
+		textFieldExpression.setBorder(BorderFactory.createCompoundBorder(textFieldExpression.getBorder(),BorderFactory.createEmptyBorder(5,5,5,5)));
 		
+		row0.add(Box.createRigidArea(new Dimension(140,0)));
+		row0.add(textFieldExpression);
+		row0.add(Box.createRigidArea(new Dimension(34,0)));
+		
+		textFieldTime = new JTextField("0.000");
+		textFieldTime.setPreferredSize(new Dimension(100,50));
+		textFieldTime.setEnabled(false);
+		textFieldTime.setOpaque(false);
+		textFieldTime.setBorder(null);
+		textFieldTime.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 30));
+		textFieldTime.setDisabledTextColor(Color.black);
+		row0.add(textFieldTime);
 		
 		try {
 			correctImg = new JLabel();
@@ -227,8 +243,11 @@ public class Window extends JFrame {
 	 */
 	public void gradingChoise(String clickValue){
 		if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
+			stopTimeCount();
 			correctChoiseBox();
-			createExpression();
+			if (radioButtonAutoRestart.isSelected()){
+				createExpression();
+			}
 		} else {
 			incorrectChoiseBox();
 		}
@@ -240,7 +259,26 @@ public class Window extends JFrame {
 	 */
 	public void correctChoiseBox(){
 		incorrectImg.setVisible(false);
-		correctImg.setVisible(true);
+		Double timeElapsed = Double.parseDouble(textFieldTime.getText().toString());
+		System.out.println(timeElapsed);
+		try {
+			if (timeElapsed < 2){
+				correctImg.setIcon(new ImageIcon(ImageIO.read(ClassLoader.getSystemResourceAsStream("5star.png"))));
+			} else if (timeElapsed < 4){
+				correctImg.setIcon(new ImageIcon(ImageIO.read(ClassLoader.getSystemResourceAsStream("4star.png"))));
+			} else if (timeElapsed < 6){
+				correctImg.setIcon(new ImageIcon(ImageIO.read(ClassLoader.getSystemResourceAsStream("3star.png"))));
+			} else if (timeElapsed < 8){
+				correctImg.setIcon(new ImageIcon(ImageIO.read(ClassLoader.getSystemResourceAsStream("2star.png"))));
+			} else {
+				correctImg.setIcon(new ImageIcon(ImageIO.read(ClassLoader.getSystemResourceAsStream("1star.png"))));
+			}
+			correctImg.setVisible(true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/**
@@ -268,6 +306,10 @@ public class Window extends JFrame {
 		subMenuSettings = new JMenu("Inställningar");		//Declares a submenu
 		menu.add(subMenuSettings);						//Adds a submenu called settings to rootmenu
 		
+		radioButtonAutoRestart = new JRadioButton("Nytt tal automatiskt");
+		radioButtonAutoRestart.setSelected(false);
+		subMenuSettings.add(radioButtonAutoRestart);
+		
 		subMenuMaxNumbers = new JMenu("Nummer intervall");	//Declares a subMenu (Numbers interval)
 		subMenuSettings.add(subMenuMaxNumbers);			//Adds subMenuNumbers to subMenuSettings
 		subMenuArithmeticChoise = new JMenu("Välj räknesätt");	//Declares a submenu for arithmetic choise
@@ -277,7 +319,7 @@ public class Window extends JFrame {
 		subMenuSettings.add(boxItemAllowNegativeNumbers);	//Add the checkboxitem to menu
 		
 		subMenuAnimation = new JMenu("Animering");		//Declares a subMenu (Animation)
-		subMenuSettings.add(subMenuAnimation);			//Adds subMenuNumbers to subMenuSettings
+		//subMenuSettings.add(subMenuAnimation);			//Adds subMenuNumbers to subMenuSettings
 		boxItemAnimationOnOff = new JCheckBox("Animering PÅ/AV",true);	//Declares a checkboxitem for animation on/off
 		subMenuAnimation.add(boxItemAnimationOnOff);	//Adds the checkboxitem to menu
 		
@@ -355,6 +397,7 @@ public class Window extends JFrame {
 			AbstractButton button = buttons.nextElement();
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					stopTimeCount();
 					createExpression();
 				}
 			});
@@ -364,6 +407,7 @@ public class Window extends JFrame {
 			AbstractButton button = buttons.nextElement();
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					stopTimeCount();
 					createExpression();	
 				}
 			});
@@ -371,12 +415,14 @@ public class Window extends JFrame {
 		
 		newExpression.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				stopTimeCount();
 				createExpression();	
 			}
 		});
 		
 		boxItemAllowNegativeNumbers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				stopTimeCount();
 				createExpression();				
 			}
 		});
@@ -481,8 +527,32 @@ public class Window extends JFrame {
 			correctAnswer = 0;										//Stores the correct index of answer
 		}
 		setButtonImages();
-		
-		
-		
+		startTimeCount();
+	}
+	
+	public void updateTime(){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				while (timeCountStarted){
+					long timeElapsed = System.nanoTime() - startTime;
+					timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);	
+					long seconds = TimeUnit.MILLISECONDS.toSeconds(timeElapsed);
+					timeElapsed -= TimeUnit.SECONDS.toMillis(seconds);
+					textFieldTime.setText(String.format("%01d.%02d", seconds,timeElapsed));	
+				}
+			}
+		}).start();
+	}
+	
+	public void startTimeCount(){
+		timeCountStarted = true;
+		startTime = System.nanoTime();
+		updateTime();
+	}
+	
+	public void stopTimeCount(){
+		timeCountStarted = false;
 	}
 }
