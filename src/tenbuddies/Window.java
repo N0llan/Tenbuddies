@@ -16,19 +16,15 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Character.Subset;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
-
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -47,7 +43,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-
 import com.sun.glass.events.KeyEvent;
 import java.util.Collections;
 
@@ -70,7 +65,7 @@ public class Window extends JFrame {
 	private ArrayList<Integer> listButtonOrder;
 	private JPanel row0, row1, row2, row3, row4;
 	private JMenuItem newExpression;
-	private int correctAnswer;
+	private int correctAnswer = -1;
 	private long startTime;
 	private boolean timeCountStarted;
 	
@@ -90,7 +85,7 @@ public class Window extends JFrame {
 		row0.setLayout(new FlowLayout(FlowLayout.CENTER));	//Layout på raden
 		row0.setBackground(Color.CYAN);						//Bakgrundsfärg
 		this.add(row0);
-		textFieldExpression = new JTextField("Expression will be here..");
+		textFieldExpression = new JTextField("");
 		textFieldExpression.setPreferredSize(new Dimension(300,50));
 		textFieldExpression.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 34));
 		textFieldExpression.setDisabledTextColor(Color.black);
@@ -102,7 +97,7 @@ public class Window extends JFrame {
 		row0.add(textFieldExpression);
 		row0.add(Box.createRigidArea(new Dimension(34,0)));
 		
-		textFieldTime = new JTextField("0.000");
+		textFieldTime = new JTextField("");
 		textFieldTime.setPreferredSize(new Dimension(100,50));
 		textFieldTime.setEnabled(false);
 		textFieldTime.setOpaque(false);
@@ -147,7 +142,8 @@ public class Window extends JFrame {
 		initButtons();
 		this.setJMenuBar(menuBar);
 		this.setVisible(true);
-		createExpression();
+		randomizeButtonValues();
+		setButtonImages();
 		
 	}
 	
@@ -231,7 +227,7 @@ public class Window extends JFrame {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				gradingChoise(jLabel.getName());		
+				gradingChoise(jLabel.getName());
 			}
 		});
 	}
@@ -242,15 +238,17 @@ public class Window extends JFrame {
 	 * Function will check if clicked value is the correct answer
 	 */
 	public void gradingChoise(String clickValue){
-		if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
-			stopTimeCount();
-			correctChoiseBox();
-			if (radioButtonAutoRestart.isSelected()){
-				createExpression();
-			}
-		} else {
-			incorrectChoiseBox();
-		}
+		if (correctAnswer != -1){
+			if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
+				stopTimeCount();
+				correctChoiseBox();
+				if (radioButtonAutoRestart.isSelected()){
+					createExpression();
+				}
+			} else if(clickValue != buttons[listButtonOrder.get(correctAnswer)].getName()){
+				incorrectChoiseBox();
+			}	
+		}	
 	}
 	
 	/**
