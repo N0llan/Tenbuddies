@@ -420,6 +420,15 @@ public class Window extends JFrame {
 			}
 		});
 		
+		radioButtonAutoRestart.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				stopTimeCount();
+				createExpression();		
+			}
+		});
+		
 		boxItemAllowNegativeNumbers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stopTimeCount();
@@ -530,6 +539,10 @@ public class Window extends JFrame {
 		startTimeCount();
 	}
 	
+	/**
+	 * @author Nollan
+	 * Function handles the time counting
+	 */
 	public void updateTime(){
 		new Thread(new Runnable() {
 			
@@ -546,12 +559,20 @@ public class Window extends JFrame {
 		}).start();
 	}
 	
+	/**
+	 * @author Nollan
+	 * Function start the time count
+	 */
 	public void startTimeCount(){
 		timeCountStarted = true;
 		startTime = System.nanoTime();
 		updateTime();
 	}
 	
+	/**
+	 * @author Nollan
+	 * Function stops the time count
+	 */
 	public void stopTimeCount(){
 		timeCountStarted = false;
 	}
