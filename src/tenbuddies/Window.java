@@ -10,6 +10,7 @@
 
 package tenbuddies;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -44,6 +45,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import com.sun.glass.events.KeyEvent;
+
 import java.util.Collections;
 
 @SuppressWarnings("serial")
@@ -52,20 +54,20 @@ public class Window extends JFrame {
 	private JLabel[] buttons = new JLabel[11];
 	private JLabel btnZero,btnOne, btnTwo, btnThree, btnFour, btnFive, btnSix, btnSeven, btnEight, btnNine, btnTen, correctImg, incorrectImg;
 	private JMenuBar menuBar;
-	private JMenu menu, subMenuSettings, subMenuAnimation, subMenuMaxNumbers, subMenuArithmeticChoise;
-	private JCheckBox boxItemAnimationOnOff, boxItemAllowNegativeNumbers;
+	private JMenu menu, subMenuSettings, subMenuAnimation, subMenuMaxNumbers, subMenuArithmeticChoise, subMenuCompetition;
+	private JCheckBox boxItemAnimationOnOff, boxItemAllowNegativeNumbers, boxItemButtonAutoRestart, boxItemKeepScore;
 	private JRadioButton radioButtonMaxNumber10, radioButtonMaxNumber20, radioButtonMaxNumber30, radioButtonMaxNumber40, radioButtonMaxNumber50, 
 						radioButtonMinNum10MaxNumber50, radioButtonMinNum10MaxNumber40, radioButtonMinNum10MaxNumber30,radioButtonMinNum10MaxNumber20,
 						radioButtonMinNum20MaxNumber50, radioButtonMinNum20MaxNumber40, radioButtonMinNum20MaxNumber30, 
 						radioButtonMinNum30MaxNumber50,	radioButtonMinNum30MaxNumber40,
 						radioButtonMinNum40MaxNumber50,
-						radioButtonAddition, radioButtonSubtraction, radioButtonDivision, radioButtonMultiplication, radioButtonAutoRestart;
+						radioButtonAddition, radioButtonSubtraction, radioButtonDivision, radioButtonMultiplication;
 	private ButtonGroup numberGroup, arithmeticChoiseGroup;
-	private JTextField textFieldExpression, textFieldTime;
+	private JTextField textFieldExpression, textFieldTime, textFieldScoreCount, textFieldCompetition, countDownText;
 	private ArrayList<Integer> listButtonOrder;
-	private JPanel row0, row1, row2, row3, row4;
+	private JPanel row0, row1, row2, row3, row4, expressionScreen, competitionCountDown;
 	private JMenuItem newExpression;
-	private int correctAnswer = -1;
+	private int correctAnswer = -1, competitionExpressionCount = 0, comptetitionCorrectCount = 0;
 	private long startTime;
 	private boolean timeCountStarted;
 	
@@ -76,25 +78,50 @@ public class Window extends JFrame {
 	public Window() {
 		super("Tiokompisar");
 		createMenu();
-		this.setLayout(new GridLayout(5, 1));
 		setSize(600,600);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
+		expressionScreen = new JPanel(new GridLayout(5, 1));
+		expressionScreen.setSize(600,600);
+		expressionScreen.setBackground(Color.CYAN);
+		competitionCountDown = new JPanel(new FlowLayout());
+		competitionCountDown.setBackground(Color.BLACK);
+		competitionCountDown.setSize(600,600);
+		countDownText = new JTextField("3");
+		countDownText.setEnabled(false);
+		countDownText.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 400));
+		countDownText.setDisabledTextColor(Color.WHITE);
+		countDownText.setBackground(Color.BLACK);
+		countDownText.setBorder(null);
+		
+		competitionCountDown.add(countDownText);
+		competitionCountDown.setVisible(false);
+		this.add(competitionCountDown);
+		this.add(expressionScreen);
 				
-		row0 = new JPanel();								//Skapar en rad
+		row0 = new JPanel();								//Skapar översta raden
 		row0.setLayout(new FlowLayout(FlowLayout.CENTER));	//Layout på raden
 		row0.setBackground(Color.CYAN);						//Bakgrundsfärg
-		this.add(row0);
-		textFieldExpression = new JTextField("");
-		textFieldExpression.setPreferredSize(new Dimension(300,50));
+		expressionScreen.add(row0);										//Lägger till första raden till frame
+		
+		textFieldScoreCount = new JTextField("");
+		textFieldScoreCount.setPreferredSize(new Dimension(110,50));
+		textFieldScoreCount.setEnabled(false);
+		textFieldScoreCount.setOpaque(false);
+		textFieldScoreCount.setBorder(null);
+		textFieldScoreCount.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 30));
+		textFieldScoreCount.setDisabledTextColor(Color.black);
+		row0.add(textFieldScoreCount);
+		row0.add(Box.createRigidArea(new Dimension(24,0)));
+		
+		textFieldExpression = new JTextField("");			//Skapar textrutan som uttrycket ska visas i
+		textFieldExpression.setPreferredSize(new Dimension(300,50));	//Sätter storlek och andra formateringar
 		textFieldExpression.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 34));
 		textFieldExpression.setDisabledTextColor(Color.black);
 		textFieldExpression.setHorizontalAlignment(SwingConstants.CENTER);
 		textFieldExpression.setEnabled(false);
 		textFieldExpression.setBorder(BorderFactory.createCompoundBorder(textFieldExpression.getBorder(),BorderFactory.createEmptyBorder(5,5,5,5)));
-		
-		row0.add(Box.createRigidArea(new Dimension(140,0)));
-		row0.add(textFieldExpression);
+		row0.add(textFieldExpression);						//Lägger till textrutan
 		row0.add(Box.createRigidArea(new Dimension(34,0)));
 		
 		textFieldTime = new JTextField("");
@@ -122,22 +149,22 @@ public class Window extends JFrame {
 		row1 = new JPanel();							
 		row1.setLayout(new FlowLayout(FlowLayout.CENTER,1,1));
 		row1.setBackground(Color.CYAN);
-		this.add(row1);
+		expressionScreen.add(row1);
 		
 		row2 = new JPanel();
 		row2.setLayout(new FlowLayout(FlowLayout.CENTER,1,1));
 		row2.setBackground(Color.CYAN);
-		this.add(row2);
+		expressionScreen.add(row2);
 
 		row3 = new JPanel();
 		row3.setLayout(new FlowLayout(FlowLayout.CENTER,1,1));
 		row3.setBackground(Color.CYAN);
-		this.add(row3);
+		expressionScreen.add(row3);
 
 		row4 = new JPanel();
 		row4.setLayout(new FlowLayout(FlowLayout.CENTER,1,1));
 		row4.setBackground(Color.CYAN);
-		this.add(row4);
+		expressionScreen.add(row4);
 		
 		initButtons();
 		this.setJMenuBar(menuBar);
@@ -238,15 +265,25 @@ public class Window extends JFrame {
 	 * Function will check if clicked value is the correct answer
 	 */
 	public void gradingChoise(String clickValue){
+		competitionExpressionCount++;
 		if (correctAnswer != -1){
 			if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
 				stopTimeCount();
-				correctChoiseBox();
-				if (radioButtonAutoRestart.isSelected()){
+				setCorrectAnswerImage();
+				if (boxItemKeepScore.isSelected()){
+					comptetitionCorrectCount++;
+					textFieldScoreCount.setText(Integer.toString(comptetitionCorrectCount)+ "/" + textFieldCompetition.getText());
+				} 
+				if (boxItemButtonAutoRestart.isSelected()){
 					createExpression();
 				}
 			} else if(clickValue != buttons[listButtonOrder.get(correctAnswer)].getName()){
-				incorrectChoiseBox();
+				if (boxItemKeepScore.isSelected()){
+					textFieldScoreCount.setText(Integer.toString(comptetitionCorrectCount)+ "/" + textFieldCompetition.getText());
+					stopTimeCount();
+					createExpression();
+				} 
+				setIncorrectAnswerImage();
 			}	
 		}	
 	}
@@ -255,7 +292,7 @@ public class Window extends JFrame {
 	 * @author Nollan
 	 * Function switches visible image from incorrect to correct
 	 */
-	public void correctChoiseBox(){
+	public void setCorrectAnswerImage(){
 		incorrectImg.setVisible(false);
 		Double timeElapsed = Double.parseDouble(textFieldTime.getText().toString());
 		System.out.println(timeElapsed);
@@ -283,7 +320,7 @@ public class Window extends JFrame {
 	 * @author Nollan
 	 * Function switches visible image from correct to incorrect
 	 */
-	public void incorrectChoiseBox(){
+	public void setIncorrectAnswerImage(){
 		correctImg.setVisible(false);
 		incorrectImg.setVisible(true);
 	}
@@ -300,13 +337,21 @@ public class Window extends JFrame {
 		newExpression.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, KeyEvent.MODIFIER_NONE));
 		menu.add(newExpression);
 		
-		
 		subMenuSettings = new JMenu("Inställningar");		//Declares a submenu
 		menu.add(subMenuSettings);						//Adds a submenu called settings to rootmenu
 		
-		radioButtonAutoRestart = new JRadioButton("Nytt tal automatiskt");
-		radioButtonAutoRestart.setSelected(false);
-		subMenuSettings.add(radioButtonAutoRestart);
+		boxItemButtonAutoRestart = new JCheckBox("Nytt tal automatiskt");
+		boxItemButtonAutoRestart.setSelected(false);
+		subMenuSettings.add(boxItemButtonAutoRestart);
+		
+		subMenuCompetition = new JMenu("Tävling..");
+		subMenuSettings.add(subMenuCompetition);
+		boxItemKeepScore = new JCheckBox("Tävla!");
+		boxItemKeepScore.setSelected(false);
+		subMenuCompetition.add(boxItemKeepScore);
+		textFieldCompetition = new JTextField("10");
+		textFieldCompetition.setToolTipText("Antal uttryck..");
+		subMenuCompetition.add(textFieldCompetition);
 		
 		subMenuMaxNumbers = new JMenu("Nummer intervall");	//Declares a subMenu (Numbers interval)
 		subMenuSettings.add(subMenuMaxNumbers);			//Adds subMenuNumbers to subMenuSettings
@@ -418,7 +463,7 @@ public class Window extends JFrame {
 			}
 		});
 		
-		radioButtonAutoRestart.addActionListener(new ActionListener() {
+		boxItemButtonAutoRestart.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -431,6 +476,17 @@ public class Window extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				stopTimeCount();
 				createExpression();				
+			}
+		});
+		
+		boxItemKeepScore.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (boxItemKeepScore.isSelected()){
+					stopTimeCount();
+					startCompetition();
+				} else {
+					textFieldScoreCount.setVisible(false);
+				}
 			}
 		});
 		
@@ -451,6 +507,7 @@ public class Window extends JFrame {
 				e.printStackTrace();
 			}
 		}
+		
 	}
 		
 	/**
@@ -497,44 +554,49 @@ public class Window extends JFrame {
 	 * Function creates the expression that the user is supposed to solve.
 	 */
 	public void createExpression(){
-		randomizeButtonValues();
-		setButtonImages();
-		int answer = 0;
-		listButtonOrder = new ArrayList<Integer>();	//List with int
-		for (int count = 0; count< buttons.length; count++){			//Loops the number of numbers we want
-			listButtonOrder.add(count);								//Adds the number to the list
-		}
-		Collections.shuffle(listButtonOrder);							//Shuffles the list
-		
-		String arithmetic = "";
-		if(radioButtonAddition.isSelected()){						//Checks if we are dealing with addition
-			arithmetic = " + ";										//Calculates the answer and stores it in variable
-			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) + Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
-		} else if (radioButtonSubtraction.isSelected()) {			//Checks if we are dealing with subtraction
-			arithmetic = " - ";										//Calculates the answer and stores it in variable
-			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
-			while (!boxItemAllowNegativeNumbers.isSelected() && answer < 0){
-				randomizeButtonValues();
-				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+		if (!boxItemKeepScore.isSelected() || (boxItemKeepScore.isSelected() && competitionExpressionCount < Integer.parseInt(textFieldCompetition.getText()))){
+			randomizeButtonValues();
+			setButtonImages();
+			int answer = 0;
+			listButtonOrder = new ArrayList<Integer>();	//List with int
+			for (int count = 0; count< buttons.length; count++){			//Loops the number of numbers we want
+				listButtonOrder.add(count);								//Adds the number to the list
 			}
-																	
-		} else if (radioButtonMultiplication.isSelected()){			//Checks if we are dealing with multiplication
-			arithmetic = " \u2219 ";								//Calculates the answer and stores it in variable
-			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) * Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
-		} else if (radioButtonDivision.isSelected()){				//Checks if we are dealing with division
-			arithmetic = " / ";										//Calculates the answer and stores it in variable
-			answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) / Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+			Collections.shuffle(listButtonOrder);							//Shuffles the list
+			
+			String arithmetic = "";
+			if(radioButtonAddition.isSelected()){						//Checks if we are dealing with addition
+				arithmetic = " + ";										//Calculates the answer and stores it in variable
+				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) + Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+			} else if (radioButtonSubtraction.isSelected()) {			//Checks if we are dealing with subtraction
+				arithmetic = " - ";										//Calculates the answer and stores it in variable
+				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+				while (!boxItemAllowNegativeNumbers.isSelected() && answer < 0){
+					randomizeButtonValues();
+					answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) - Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+				}
+																		
+			} else if (radioButtonMultiplication.isSelected()){			//Checks if we are dealing with multiplication
+				arithmetic = " \u2219 ";								//Calculates the answer and stores it in variable
+				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) * Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+			} else if (radioButtonDivision.isSelected()){				//Checks if we are dealing with division
+				arithmetic = " / ";										//Calculates the answer and stores it in variable
+				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) / Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
+			}
+			
+			if (Integer.parseInt(buttons[0].getName()) > Integer.parseInt(buttons[1].getName())){
+				textFieldExpression.setText(buttons[listButtonOrder.get(0)].getName() + arithmetic + "____ = " + String.valueOf(answer) );	//Adds expression to textbox
+				correctAnswer = 1;										//Stores the correct index of answer
+			} else {
+				textFieldExpression.setText("____" + arithmetic + buttons[listButtonOrder.get(1)].getName() + " = " + String.valueOf(answer) );	//Adds expression to textbox
+				correctAnswer = 0;										//Stores the correct index of answer
+			}
+			setButtonImages();
+			startTimeCount();
+		} else {
+			
 		}
 		
-		if (Integer.parseInt(buttons[0].getName()) > Integer.parseInt(buttons[1].getName())){
-			textFieldExpression.setText(buttons[listButtonOrder.get(0)].getName() + arithmetic + "____ = " + String.valueOf(answer) );	//Adds expression to textbox
-			correctAnswer = 1;										//Stores the correct index of answer
-		} else {
-			textFieldExpression.setText("____" + arithmetic + buttons[listButtonOrder.get(1)].getName() + " = " + String.valueOf(answer) );	//Adds expression to textbox
-			correctAnswer = 0;										//Stores the correct index of answer
-		}
-		setButtonImages();
-		startTimeCount();
 	}
 	
 	/**
@@ -573,5 +635,36 @@ public class Window extends JFrame {
 	 */
 	public void stopTimeCount(){
 		timeCountStarted = false;
+	}
+	
+	public void startCompetition(){
+		new Thread(new Runnable() {
+			public void run() {				
+				try {
+					expressionScreen.setVisible(false);
+					competitionCountDown.setVisible(true);		
+					textFieldScoreCount.setVisible(true);
+										
+					if (!textFieldCompetition.equals("")){
+						textFieldScoreCount.setText(Integer.toString(comptetitionCorrectCount)+ "/" + textFieldCompetition.getText());
+					} 
+					countDownText.setText("3");
+					Thread.sleep(1000);
+					countDownText.setText("2");
+					Thread.sleep(1000);
+					countDownText.setText("1");
+					Thread.sleep(1000);
+					competitionCountDown.setVisible(false);
+					expressionScreen.setVisible(true);
+					boxItemButtonAutoRestart.setSelected(true);;
+					createExpression();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			}
+		}).start();		
 	}
 }
