@@ -179,7 +179,7 @@ public class Window extends JFrame {
 	 * Function initiate buttons and adds them to the panel
 	 */
 	public void initButtons(){
-		btnZero = new JLabel();
+		btnZero = new JLabel();	//Initializes "buttons"
 		btnOne = new JLabel();
 		btnTwo = new JLabel();
 		btnThree = new JLabel();
@@ -191,7 +191,7 @@ public class Window extends JFrame {
 		btnNine = new JLabel();
 		btnTen = new JLabel();
 		
-		buttons[0] = btnZero;
+		buttons[0] = btnZero;	//Adds "buttons" to array
 		buttons[1] = btnOne;
 		buttons[2] = btnTwo;
 		buttons[3] = btnThree;
@@ -204,10 +204,10 @@ public class Window extends JFrame {
 		buttons[10] = btnTen;
 				
 		int count = 0;
-		for (JLabel jLabel : buttons) {
-			jLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-			addButtonListener(jLabel);
-			if (count >= 0 && count < 3){
+		for (JLabel jLabel : buttons) {		//Loops array with "buttons"
+			jLabel.setBorder(new EmptyBorder(5, 5, 5, 5));	//Sets border
+			addButtonListener(jLabel);		//Adds buttonListener (calls function)
+			if (count >= 0 && count < 3){	//Add "button" to correct row
 				row1.add(jLabel);
 			} else if (count >= 3 && count < 6){
 				row2.add(jLabel);
@@ -261,11 +261,11 @@ public class Window extends JFrame {
 	
 	/**
 	 * @author Nollan
-	 * @param clickValue: Contains the namevalue of the jLabel clicked
+	 * @param clickValue: Contains the name of the jLabel clicked
 	 * Function will check if clicked value is the correct answer
 	 */
 	public void gradingChoise(String clickValue){
-		competitionExpressionCount++;
+		competitionExpressionCount++;			
 		if (correctAnswer != -1){
 			if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
 				stopTimeCount();
@@ -286,6 +286,7 @@ public class Window extends JFrame {
 				setIncorrectAnswerImage();
 			}	
 		}	
+		
 	}
 	
 	/**
@@ -577,7 +578,8 @@ public class Window extends JFrame {
 				}
 																		
 			} else if (radioButtonMultiplication.isSelected()){			//Checks if we are dealing with multiplication
-				arithmetic = " \u2219 ";								//Calculates the answer and stores it in variable
+				arithmetic = " \u2219 ";								//Gives the value of multiplication sign
+																		//Calculates the answer and stores it in variable
 				answer = Integer.parseInt(buttons[listButtonOrder.get(0)].getName().toString()) * Integer.parseInt(buttons[listButtonOrder.get(1)].getName().toString());
 			} else if (radioButtonDivision.isSelected()){				//Checks if we are dealing with division
 				arithmetic = " / ";										//Calculates the answer and stores it in variable
@@ -591,10 +593,11 @@ public class Window extends JFrame {
 				textFieldExpression.setText("____" + arithmetic + buttons[listButtonOrder.get(1)].getName() + " = " + String.valueOf(answer) );	//Adds expression to textbox
 				correctAnswer = 0;										//Stores the correct index of answer
 			}
-			setButtonImages();
-			startTimeCount();
-		} else {
-			
+			setButtonImages();											//Calls function setButtonImages
+			startTimeCount();											//Calls function startTimeCount
+		} else {													
+			//Här vill vi visa en bra jobbat skärm. Summan av tid och antal korrekta/antal frågor.
+			//Även slå av competition och autorestart
 		}
 		
 	}
@@ -604,16 +607,16 @@ public class Window extends JFrame {
 	 * Function handles the time counting
 	 */
 	public void updateTime(){
-		new Thread(new Runnable() {
+		new Thread(new Runnable() {										//Create new thread for timecount
 			
 			@Override
 			public void run() {
-				while (timeCountStarted){
-					long timeElapsed = System.nanoTime() - startTime;
-					timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);	
+				while (timeCountStarted){								//If timecount is started
+					long timeElapsed = System.nanoTime() - startTime;	//Current elapsed time is calculated
+					timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);	//Convert to correct format
 					long seconds = TimeUnit.MILLISECONDS.toSeconds(timeElapsed);
 					timeElapsed -= TimeUnit.SECONDS.toMillis(seconds);
-					textFieldTime.setText(String.format("%01d.%02d", seconds,timeElapsed));	
+					textFieldTime.setText(String.format("%01d.%02d", seconds,timeElapsed));	//Set text with correct format
 				}
 			}
 		}).start();
@@ -624,9 +627,9 @@ public class Window extends JFrame {
 	 * Function start the time count
 	 */
 	public void startTimeCount(){
-		timeCountStarted = true;
-		startTime = System.nanoTime();
-		updateTime();
+		timeCountStarted = true;					//Sets variable timeCountStarted to true
+		startTime = System.nanoTime();				//Current time
+		updateTime();								//Calls function
 	}
 	
 	/**
@@ -634,30 +637,34 @@ public class Window extends JFrame {
 	 * Function stops the time count
 	 */
 	public void stopTimeCount(){
-		timeCountStarted = false;
+		timeCountStarted = false;					//Sets to false
 	}
 	
-	public void startCompetition(){
+	/**
+	 * @author Nollan
+	 * Function handle the competition start screen and enabling the correct GUI
+	 */
+	public void startCompetition(){		
 		new Thread(new Runnable() {
 			public void run() {				
 				try {
-					expressionScreen.setVisible(false);
-					competitionCountDown.setVisible(true);		
-					textFieldScoreCount.setVisible(true);
+					expressionScreen.setVisible(false);			//Hides the main screen (called expression)
+					competitionCountDown.setVisible(true);		//Shows the countdown for competition
+					textFieldScoreCount.setVisible(true);		//Shows the counter
 										
-					if (!textFieldCompetition.equals("")){
+					if (!textFieldCompetition.equals("")){		//IF the textfield isn't empty
 						textFieldScoreCount.setText(Integer.toString(comptetitionCorrectCount)+ "/" + textFieldCompetition.getText());
 					} 
-					countDownText.setText("3");
+					countDownText.setText("3");					//Countdown
 					Thread.sleep(1000);
 					countDownText.setText("2");
 					Thread.sleep(1000);
 					countDownText.setText("1");
 					Thread.sleep(1000);
-					competitionCountDown.setVisible(false);
+					competitionCountDown.setVisible(false);		//Switches back to main screen
 					expressionScreen.setVisible(true);
-					boxItemButtonAutoRestart.setSelected(true);;
-					createExpression();
+					boxItemButtonAutoRestart.setSelected(true); //Enables autorestart so the competition will generate new expressions.
+					createExpression();							//Calls function
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
