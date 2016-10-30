@@ -55,7 +55,8 @@ public class Window extends JFrame {
 	private JLabel btnZero,btnOne, btnTwo, btnThree, btnFour, btnFive, btnSix, btnSeven, btnEight, btnNine, btnTen, correctImg, incorrectImg;
 	private JMenuBar menuBar;
 	private JMenu menu, subMenuSettings, subMenuAnimation, subMenuMaxNumbers, subMenuArithmeticChoise, subMenuCompetition;
-	private JCheckBox boxItemAnimationOnOff, boxItemAllowNegativeNumbers, boxItemButtonAutoRestart, boxItemKeepScore;
+	private JCheckBox boxItemAnimationOnOff, boxItemAllowNegativeNumbers, boxItemButtonAutoRestart;
+	private JMenuItem buttonCompetition;
 	private JRadioButton radioButtonMaxNumber10, radioButtonMaxNumber20, radioButtonMaxNumber30, radioButtonMaxNumber40, radioButtonMaxNumber50, 
 						radioButtonMinNum10MaxNumber50, radioButtonMinNum10MaxNumber40, radioButtonMinNum10MaxNumber30,radioButtonMinNum10MaxNumber20,
 						radioButtonMinNum20MaxNumber50, radioButtonMinNum20MaxNumber40, radioButtonMinNum20MaxNumber30, 
@@ -63,13 +64,14 @@ public class Window extends JFrame {
 						radioButtonMinNum40MaxNumber50,
 						radioButtonAddition, radioButtonSubtraction, radioButtonDivision, radioButtonMultiplication;
 	private ButtonGroup numberGroup, arithmeticChoiseGroup;
-	private JTextField textFieldExpression, textFieldTime, textFieldScoreCount, textFieldCompetition, countDownText;
+	private JTextField textFieldExpression, textFieldTime, textFieldScoreCount, textFieldCompetition, countDownText, congratzText, congratzTextTop,
+						congratzText2nd, congratzText3rd;
 	private ArrayList<Integer> listButtonOrder;
-	private JPanel row0, row1, row2, row3, row4, expressionScreen, competitionCountDown;
+	private JPanel row0, row1, row2, row3, row4, expressionScreen, competitionCountDown, congratzScreen;
 	private JMenuItem newExpression;
 	private int correctAnswer = -1, competitionExpressionCount = 0, comptetitionCorrectCount = 0;
-	private long startTime;
-	private boolean timeCountStarted;
+	private long startTime, totalTime = 0, totalTimeTmp = 0;
+	private boolean timeCountStarted, allowNumberButtonClick = true, competitionActive = false;
 	
 	/**
 	 * @author Nollan
@@ -81,24 +83,66 @@ public class Window extends JFrame {
 		setSize(600,600);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
-		expressionScreen = new JPanel(new GridLayout(5, 1));
+		
+		expressionScreen = new JPanel(new GridLayout(5, 1)); //Adds expressionscreen and its properties
 		expressionScreen.setSize(600,600);
 		expressionScreen.setBackground(Color.CYAN);
-		competitionCountDown = new JPanel(new FlowLayout());
+		
+		
+		competitionCountDown = new JPanel(new FlowLayout()); //Adds competitionscreen and its properties
 		competitionCountDown.setBackground(Color.BLACK);
 		competitionCountDown.setSize(600,600);
-		countDownText = new JTextField("3");
+		competitionCountDown.setVisible(false);				//Hides competition panel
+		this.add(competitionCountDown);	
+		
+		congratzScreen = new JPanel(new FlowLayout());		//Adds congratzscreen and its properties
+		congratzScreen.setBackground(Color.YELLOW);
+		congratzScreen.setSize(600,600);
+		congratzScreen.setVisible(false);
+		this.add(congratzScreen);
+		
+		congratzTextTop = new JTextField("Grattis");					//Adds textfield for congratztexttop and its properties
+		congratzTextTop.setEnabled(false);
+		congratzTextTop.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 100));
+		congratzTextTop.setDisabledTextColor(Color.BLACK);
+		congratzTextTop.setBackground(Color.YELLOW);
+		congratzTextTop.setBorder(null);
+		congratzScreen.add(congratzTextTop);
+		
+		congratzText = new JTextField();					//Adds textfield for congratztext and its properties
+		congratzText.setEnabled(false);
+		congratzText.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+		congratzText.setDisabledTextColor(Color.BLACK);
+		congratzText.setBackground(Color.YELLOW);
+		congratzText.setBorder(null);
+		congratzScreen.add(congratzText);
+		
+		congratzText2nd = new JTextField();					//Adds textfield for congratztext2nd and its properties
+		congratzText2nd.setEnabled(false);
+		congratzText2nd.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+		congratzText2nd.setDisabledTextColor(Color.BLACK);
+		congratzText2nd.setBackground(Color.YELLOW);
+		congratzText2nd.setBorder(null);
+		congratzScreen.add(congratzText2nd);
+		
+		congratzText3rd = new JTextField("Klicka för att komma tillbaka så du kan prova igen."); //Adds textfield for congratztext3rd and its properties
+		congratzText3rd.setEnabled(false);
+		congratzText3rd.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
+		congratzText3rd.setDisabledTextColor(Color.BLACK);
+		congratzText3rd.setBackground(Color.YELLOW);
+		congratzText3rd.setBorder(null);
+		congratzScreen.add(congratzText3rd);
+		
+		countDownText = new JTextField("3"); 				//Adds textfield for countdown and its properties
 		countDownText.setEnabled(false);
 		countDownText.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 400));
 		countDownText.setDisabledTextColor(Color.WHITE);
 		countDownText.setBackground(Color.BLACK);
 		countDownText.setBorder(null);
-		
-		competitionCountDown.add(countDownText);
-		competitionCountDown.setVisible(false);
-		this.add(competitionCountDown);
+		competitionCountDown.add(countDownText);			//Adds text to jpanel
+			
 		this.add(expressionScreen);
-				
+		
 		row0 = new JPanel();								//Skapar översta raden
 		row0.setLayout(new FlowLayout(FlowLayout.CENTER));	//Layout på raden
 		row0.setBackground(Color.CYAN);						//Bakgrundsfärg
@@ -220,6 +264,15 @@ public class Window extends JFrame {
 		}
 	}
 	
+	public void disableButtonClicks(){
+		allowNumberButtonClick = false;
+	}
+	
+	public void enableButtonClicks(){
+		allowNumberButtonClick = true;
+	}
+	
+	
 	/**
 	 * @author Nollan
 	 * @param jLabel: Is a button that will be clickable
@@ -254,7 +307,10 @@ public class Window extends JFrame {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				gradingChoise(jLabel.getName());
+				if (allowNumberButtonClick){
+					gradingChoise(jLabel.getName());
+				}
+				
 			}
 		});
 	}
@@ -265,12 +321,14 @@ public class Window extends JFrame {
 	 * Function will check if clicked value is the correct answer
 	 */
 	public void gradingChoise(String clickValue){
-		competitionExpressionCount++;			
+		if (competitionActive){
+			competitionExpressionCount++;	
+		}	
 		if (correctAnswer != -1){
 			if (clickValue == buttons[listButtonOrder.get(correctAnswer)].getName()){
 				stopTimeCount();
 				setCorrectAnswerImage();
-				if (boxItemKeepScore.isSelected()){
+				if (competitionActive){
 					comptetitionCorrectCount++;
 					textFieldScoreCount.setText(Integer.toString(comptetitionCorrectCount)+ "/" + textFieldCompetition.getText());
 				} 
@@ -278,7 +336,7 @@ public class Window extends JFrame {
 					createExpression();
 				}
 			} else if(clickValue != buttons[listButtonOrder.get(correctAnswer)].getName()){
-				if (boxItemKeepScore.isSelected()){
+				if (competitionActive){
 					textFieldScoreCount.setText(Integer.toString(comptetitionCorrectCount)+ "/" + textFieldCompetition.getText());
 					stopTimeCount();
 					createExpression();
@@ -347,9 +405,8 @@ public class Window extends JFrame {
 		
 		subMenuCompetition = new JMenu("Tävling..");
 		subMenuSettings.add(subMenuCompetition);
-		boxItemKeepScore = new JCheckBox("Tävla!");
-		boxItemKeepScore.setSelected(false);
-		subMenuCompetition.add(boxItemKeepScore);
+		buttonCompetition = new JMenuItem("Starta tävling!");
+		subMenuCompetition.add(buttonCompetition);
 		textFieldCompetition = new JTextField("10");
 		textFieldCompetition.setToolTipText("Antal uttryck..");
 		subMenuCompetition.add(textFieldCompetition);
@@ -479,17 +536,16 @@ public class Window extends JFrame {
 				createExpression();				
 			}
 		});
-		
-		boxItemKeepScore.addActionListener(new ActionListener() {
+			
+		buttonCompetition.addActionListener(new ActionListener() {
+			
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (boxItemKeepScore.isSelected()){
-					stopTimeCount();
-					startCompetition();
-				} else {
-					textFieldScoreCount.setVisible(false);
-				}
+				competitionActive = true;
+				stopTimeCount();
+				startCompetition();
 			}
-		});
+		});;
 		
 	}
 	
@@ -555,7 +611,7 @@ public class Window extends JFrame {
 	 * Function creates the expression that the user is supposed to solve.
 	 */
 	public void createExpression(){
-		if (!boxItemKeepScore.isSelected() || (boxItemKeepScore.isSelected() && competitionExpressionCount < Integer.parseInt(textFieldCompetition.getText()))){
+		if (!competitionActive || (competitionActive && competitionExpressionCount < Integer.parseInt(textFieldCompetition.getText()))){
 			randomizeButtonValues();
 			setButtonImages();
 			int answer = 0;
@@ -595,9 +651,8 @@ public class Window extends JFrame {
 			}
 			setButtonImages();											//Calls function setButtonImages
 			startTimeCount();											//Calls function startTimeCount
-		} else {													
-			//Här vill vi visa en bra jobbat skärm. Summan av tid och antal korrekta/antal frågor.
-			//Även slå av competition och autorestart
+		} else {
+			endCompetition();
 		}
 		
 	}
@@ -613,6 +668,7 @@ public class Window extends JFrame {
 			public void run() {
 				while (timeCountStarted){								//If timecount is started
 					long timeElapsed = System.nanoTime() - startTime;	//Current elapsed time is calculated
+					totalTimeTmp = timeElapsed;
 					timeElapsed = TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS);	//Convert to correct format
 					long seconds = TimeUnit.MILLISECONDS.toSeconds(timeElapsed);
 					timeElapsed -= TimeUnit.SECONDS.toMillis(seconds);
@@ -637,6 +693,9 @@ public class Window extends JFrame {
 	 * Function stops the time count
 	 */
 	public void stopTimeCount(){
+		if (competitionExpressionCount != 1){
+			totalTime += totalTimeTmp;
+		}
 		timeCountStarted = false;					//Sets to false
 	}
 	
@@ -644,7 +703,12 @@ public class Window extends JFrame {
 	 * @author Nollan
 	 * Function handle the competition start screen and enabling the correct GUI
 	 */
-	public void startCompetition(){		
+	public void startCompetition(){	
+		disableButtonClicks();
+		comptetitionCorrectCount = 0;
+		competitionExpressionCount = 0;
+		correctImg.setVisible(false);
+		incorrectImg.setVisible(false);
 		new Thread(new Runnable() {
 			public void run() {				
 				try {
@@ -665,6 +729,7 @@ public class Window extends JFrame {
 					expressionScreen.setVisible(true);
 					boxItemButtonAutoRestart.setSelected(true); //Enables autorestart so the competition will generate new expressions.
 					createExpression();							//Calls function
+					enableButtonClicks();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -672,6 +737,75 @@ public class Window extends JFrame {
 				
 				
 			}
-		}).start();		
+		}).start();	
+		
+	}
+	
+	public void endCompetition(){
+		disableButtonClicks();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1500);
+					totalTime = TimeUnit.MILLISECONDS.convert(totalTime, TimeUnit.NANOSECONDS);	//Convert to correct format
+					long seconds = TimeUnit.MILLISECONDS.toSeconds(totalTime);
+					totalTime -= TimeUnit.SECONDS.toMillis(seconds);
+					congratzText.setText("Du har precis avklarat tävlingen. Du hade " + textFieldScoreCount.getText() + " rätt.");
+					congratzText2nd.setText("Total tid för detta var " + String.format("%01d.%02d", seconds,totalTime) + "s.");
+					correctImg.setVisible(false);
+					incorrectImg.setVisible(false);
+					comptetitionCorrectCount = 0;
+					competitionExpressionCount = 0;
+					expressionScreen.setVisible(false);
+					correctImg.setVisible(false);
+					textFieldExpression.setText("");
+					congratzScreen.setVisible(true);
+					textFieldTime.setText("");
+					boxItemButtonAutoRestart.setSelected(false);
+					textFieldScoreCount.setText("");
+					competitionActive = false;
+					
+					addMouseListener(new MouseListener() {
+						
+						@Override
+						public void mouseReleased(MouseEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void mousePressed(MouseEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void mouseExited(MouseEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void mouseEntered(MouseEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void mouseClicked(MouseEvent e) {
+							congratzScreen.setVisible(false);
+							expressionScreen.setVisible(true);
+							enableButtonClicks();
+						}});
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+				}
+			}
+		}).start();
+		
+		//Här vill vi visa en bra jobbat skärm. Summan av tid och antal korrekta/antal frågor.
+		//Även slå av competition och autorestart
 	}
 }
