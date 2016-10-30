@@ -343,8 +343,7 @@ public class Window extends JFrame {
 				} 
 				setIncorrectAnswerImage();
 			}	
-		}	
-		
+		}			
 	}
 	
 	/**
@@ -705,6 +704,7 @@ public class Window extends JFrame {
 	 */
 	public void startCompetition(){	
 		disableButtonClicks();
+		menuBar.setVisible(false);
 		comptetitionCorrectCount = 0;
 		competitionExpressionCount = 0;
 		correctImg.setVisible(false);
@@ -738,11 +738,11 @@ public class Window extends JFrame {
 				
 			}
 		}).start();	
-		
 	}
 	
 	public void endCompetition(){
 		disableButtonClicks();
+		menuBar.setVisible(true);
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
